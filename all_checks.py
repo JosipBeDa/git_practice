@@ -3,6 +3,7 @@
 import math
 import os
 import shutil
+import socket
 import sys
 
 def check_reboot():
@@ -21,23 +22,33 @@ def check_disk_full(disk, min_gb, min_percent):
         return True
     return False
 
+def check_no_network():
+    """Return True if it fails to resolve Google's URL, otherwise false"""
+    try:
+        socket.gethostbyname("www.google.com")
+        return False
+    except:
+        return True
+
 
 def check_root_full():
     """Return true if the root partition is full, false otherwise."""
     return check_disk_full(disk="/", min_gb=2, min_percent=10)
 
 def main():
-    if check_reboot():
-        print("Pending reboot")
+    checks=[
+        (check_reboot, "Pending Reboot"),
+        (check_root_full, "Root Partition full"),
+        (check_no_network, "No working network")
+    ]
+    everything_ok = True
+    for check, msg in checks:
+        if check():
+            print(msg)
+            everything_ok = False
+    
+    if not everything_ok:
         sys.exit(1)
-    else: 
-        print("Everything ok.")
-
-    if check_root_full():
-        print("Root is full")
-        sys.exit(1)
-    else: 
-        print("Root has space woo")
 
 
     print("Everything works, right on!")

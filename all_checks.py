@@ -39,6 +39,8 @@ def main():
     else: 
         print("Root has space woo")
 
+
+    print("Everything works, right on!")
     sys.exit(0)
 
 main()
